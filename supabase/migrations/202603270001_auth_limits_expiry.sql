@@ -284,7 +284,7 @@ declare
   v_word text;
   v_source text;
   v_proposal_id uuid;
-  v_round_id uuid;
+  v_new_round_id uuid;
   v_pick uuid;
   v_i int;
 begin
@@ -355,11 +355,11 @@ begin
 
   insert into public.rounds (room_id, word, word_source)
   values (p_room_id, v_word, v_source)
-  returning id into v_round_id;
+  returning id into v_new_round_id;
 
   for v_i in 1 .. v_count loop
     insert into public.round_roles (round_id, player_id, is_impostor)
-    values (v_round_id, v_players[v_i], false);
+    values (v_new_round_id, v_players[v_i], false);
   end loop;
 
   for v_i in 1 .. v_impostors loop
@@ -367,24 +367,24 @@ begin
       v_pick := v_players[1 + floor(random() * v_count)::int];
       exit when exists (
         select 1 from public.round_roles rr
-        where rr.round_id = v_round_id
+        where rr.round_id = v_new_round_id
           and rr.player_id = v_pick
           and rr.is_impostor = false
       );
     end loop;
 
-    update public.round_roles
+    update public.round_roles rr
     set is_impostor = true
-    where round_id = v_round_id and player_id = v_pick;
+    where rr.round_id = v_new_round_id and rr.player_id = v_pick;
   end loop;
 
   update public.rooms
   set status = 'playing',
-      current_round_id = v_round_id,
+      current_round_id = v_new_round_id,
       used_words = array_append(used_words, v_word)
   where id = p_room_id;
 
-  return query select v_round_id, v_impostors;
+  return query select v_new_round_id, v_impostors;
 end;
 $$;
 
