@@ -14,7 +14,7 @@ import {
   suggestFromBank,
   touchPresence,
 } from '../services/rooms.js'
-import { ensureAnonymousSession } from '../services/supabase.js'
+import { ensureGuestSession } from '../services/supabase.js'
 import {
   gameStore,
   loadLocalSession,
@@ -48,6 +48,7 @@ const els = {
   playersEmpty: document.getElementById('players-empty'),
   playerCount: document.getElementById('player-count'),
   poolCount: document.getElementById('pool-count'),
+  lobbyExpiry: document.getElementById('lobby-expiry'),
   proposalForm: document.getElementById('proposal-form'),
   proposalInput: document.getElementById('proposal-input'),
   proposalFeedback: document.getElementById('proposal-feedback'),
@@ -175,7 +176,7 @@ async function bootstrap() {
   hide(els.revealed)
 
   try {
-    await ensureAnonymousSession()
+    await ensureGuestSession()
     const session = await resolveSession()
     if (!session) {
       window.location.href = codeFromQuery ? `/?code=${codeFromQuery}` : '/'
@@ -183,6 +184,10 @@ async function bootstrap() {
     }
 
     await refreshAll()
+    const { room } = gameStore.getState()
+    if (room?.expires_at && new Date(room.expires_at) < new Date()) {
+      throw new Error('ROOM_EXPIRED')
+    }
     wireRealtime(session.roomId)
     startPresence(session.playerId)
   } catch (error) {
@@ -343,25 +348,43 @@ function renderLobby(state) {
   )
   setText(els.playerCount, `${state.players.length} / 12`)
   setText(els.poolCount, poolLabel(state.poolCount))
+  setText(els.lobbyExpiry, formatExpiry(state.room?.expires_at))
 
   const canStart = state.players.length >= 3 && state.players.length <= 12
+  const expired = isExpired(state.room?.expires_at)
 
   if (state.isHost) {
     show(els.hostControls)
     hide(els.guestWait)
-    els.startBtn.disabled = !canStart
+    els.startBtn.disabled = !canStart || expired
     setText(
       els.startHint,
-      canStart
-        ? state.poolCount === 0
-          ? 'El pozo está vacío: se elegirá del banco al iniciar.'
-          : 'Listo para iniciar.'
-        : 'Hacen falta al menos 3 jugadores.',
+      expired
+        ? 'Esta sala expiró. Creá una nueva desde el inicio.'
+        : canStart
+          ? state.poolCount === 0
+            ? 'El pozo está vacío: se elegirá del banco al iniciar.'
+            : 'Listo para iniciar.'
+          : 'Hacen falta al menos 3 jugadores.',
     )
   } else {
     hide(els.hostControls)
     show(els.guestWait)
   }
+}
+
+function isExpired(expiresAt) {
+  if (!expiresAt) return false
+  return new Date(expiresAt).getTime() < Date.now()
+}
+
+function formatExpiry(expiresAt) {
+  if (!expiresAt) return ''
+  const date = new Date(expiresAt)
+  if (Number.isNaN(date.getTime())) return ''
+  if (date.getTime() < Date.now()) return 'Esta sala ya expiró.'
+  const time = date.toLocaleTimeString('es-AR', { hour: '2-digit', minute: '2-digit' })
+  return `La sala vence a las ${time}`
 }
 
 function renderPlaying(state) {
@@ -433,6 +456,9 @@ function humanizeError(error) {
   if (message.includes('NEED_PLAYERS')) return 'Hacen falta al menos 3 jugadores.'
   if (message.includes('ROOM_FULL')) return 'La sala está llena.'
   if (message.includes('ROOM_NOT_FOUND')) return 'Sala no encontrada.'
+  if (message.includes('ROOM_EXPIRED')) return 'Esta sala expiró. Pedile al admin una nueva.'
+  if (message.includes('PROPOSAL_LIMIT')) return 'Llegaste al límite de propuestas en esta sala.'
+  if (message.includes('SUGGEST_LIMIT')) return 'Ya pediste demasiadas sugerencias del banco.'
   if (message.includes('WRONG_STATUS')) return 'La sala no está en el estado esperado.'
   if (message.includes('EMPTY_BANK')) return 'El banco de palabras está vacío.'
   return message

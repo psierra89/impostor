@@ -1,4 +1,4 @@
-import { ensureAnonymousSession, getUserId, getSupabase } from './supabase.js'
+import { ensureGoogleSession, ensureGuestSession, getUserId, getSupabase } from './supabase.js'
 import {
   clearLocalSession,
   loadLocalSession,
@@ -26,7 +26,7 @@ function randomCode() {
 }
 
 export async function createRoom(nickname) {
-  await ensureAnonymousSession()
+  await ensureGoogleSession()
   const userId = await getUserId()
 
   for (let attempt = 0; attempt < 5; attempt += 1) {
@@ -57,7 +57,7 @@ export async function createRoom(nickname) {
 }
 
 export async function joinRoom(code, nickname) {
-  await ensureAnonymousSession()
+  await ensureGuestSession()
   const userId = await getUserId()
 
   const { data, error } = await supabase.rpc('join_room', {

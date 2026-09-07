@@ -36,6 +36,18 @@
         </p>
 
         <form id="home-form" class="card-surface text-left space-y-4" method="post" action="#">
+          <div id="auth-bar" class="rounded-[18px] bg-canvas-parchment px-4 py-3 space-y-3">
+            <p id="auth-label" class="caption !text-ink-muted-80">Cargando sesión…</p>
+            <div class="flex flex-wrap gap-2">
+              <button id="google-btn" type="button" class="btn-secondary !py-2 !text-[14px]">
+                Entrar con Google
+              </button>
+              <button id="logout-btn" type="button" class="btn-dark hidden !rounded-full">
+                Cerrar sesión
+              </button>
+            </div>
+          </div>
+
           <label class="block">
             <span class="caption mb-2 block">Tu apodo</span>
             <input
@@ -50,9 +62,16 @@
           </label>
 
           <div class="grid gap-3">
-            <button type="submit" name="action" value="create" class="btn-primary w-full">
+            <button
+              id="create-btn"
+              type="submit"
+              name="action"
+              value="create"
+              class="btn-primary w-full"
+            >
               Crear sala
             </button>
+            <p id="create-hint" class="caption hidden"></p>
             <div class="flex items-center gap-3">
               <div class="h-px flex-1 bg-hairline"></div>
               <span class="caption">o unirte</span>
@@ -76,7 +95,7 @@
 
           <div
             id="home-error"
-            class="hidden rounded-[18px] bg-[#f5f5f7] px-4 py-3 body-text text-[#1d1d1f]"
+            class="hidden rounded-[18px] bg-canvas-parchment px-4 py-3 body-text text-ink"
             role="alert"
           ></div>
           <div id="home-loading" class="hidden space-y-2" aria-live="polite">

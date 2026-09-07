@@ -2,5 +2,11 @@
   "rewrites": [
     { "source": "/s/:code", "destination": "/sala.html?code=:code" },
     { "source": "/sala", "destination": "/sala.html" }
+  ],
+  "crons": [
+    {
+      "path": "/api/cleanup",
+      "schedule": "0 4 * * *"
+    }
   ]
 }
