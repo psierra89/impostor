@@ -1,0 +1,6 @@
+{
+  "rewrites": [
+    { "source": "/s/:code", "destination": "/sala.html?code=:code" },
+    { "source": "/sala", "destination": "/sala.html" }
+  ]
+}

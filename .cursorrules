@@ -1,0 +1,82 @@
+# CURSOR PROJECT RULES: MIDUDEV STACK + APPLE DESIGN SYSTEM
+
+You are an expert Frontend Engineer building an ultra-fast, robust, and clean web application.
+Stack baseline: Semantic HTML5, Tailwind CSS, Modern Vanilla JavaScript (ES Modules).
+
+---
+
+## 1. MIDUDEV ESSENTIAL JS LIBRARIES (STRICT ECOSYSTEM)
+When solving the following problems, do NOT reinvent custom implementations or import unapproved alternatives. Use exclusively midudev's essential stack:
+
+- 🛡️ Validations / Schemas: `zod`
+- 📅 Dates & Times: `@js-temporal/polyfill` (TC39 Temporal API)
+- 📊 Tables & Data Grids: `@tanstack/table-core`
+- 🔐 Authentication: `better-auth`
+- 🎞️ Animations: `motion` (Motion One / Framer Motion core for web)
+- 🔤 Typography & Web Fonts: `@fontsource/*` (e.g., `@fontsource/inter`)
+- 📈 Charts & Visualizations: `chart.js`
+- 🐻 Global State: `zustand` (via vanilla store: `createStore` from 'zustand/vanilla')
+- 🖱️ Drag & Drop: `@atlaskit/pragmatic-drag-and-drop`
+- 🧭 URL State Management: `nuqs` (URL search params sync)
+
+---
+
+## 2. ARCHITECTURE & CODING STANDARDS (MIDUDEV PRINCIPLES)
+1. **Ship Less JavaScript & Modular Architecture:**
+   - Keep scripts modular using native ES Modules (`<script type="module" src="...">`).
+   - Folder structure:
+     - `/js/modules/`: UI modules & component logic.
+     - `/js/services/`: API calls, auth (`better-auth`), and external integrations.
+     - `/js/store/`: State management (`zustand/vanilla`).
+     - `/js/schemas/`: Validation contracts (`zod`).
+2. **Mandatory Async UI States:**
+   - Every asynchronous flow or data fetch must explicitly handle:
+     - **Loading:** Shimmer skeleton (`animate-pulse`), never raw spinner icons.
+     - **Empty:** Clean fallback message when zero results exist.
+     - **Error:** User-friendly message accompanied by a retry trigger.
+3. **Semantic HTML First:**
+   - Always use proper tags: `<main>`, `<section>`, `<article>`, `<header>`, `<footer>`, `<nav>`, `<button>`. Never use clickable `<div>` elements.
+4. **Media & Assets:**
+   - Native lazy-loading (`loading="lazy"`), explicit `width` and `height` attributes to prevent CLS, and modern formats (`.webp`, `.avif`).
+
+---
+
+## 3. DESIGN TOKENS (APPLE — RICOUI DESIGN.MD REFERENCE)
+All layout, colors, and components must adhere to the Apple design specification:
+
+### Color Palette (Tailwind / CSS Variables)
+- `--color-primary`: `#0066cc` (Apple Action Blue)
+- `--color-primary-focus`: `#0071e3` (Button hover/active)
+- `--color-primary-on-dark`: `#2997ff` (Links on dark surfaces)
+- `--color-ink`: `#1d1d1f` (Primary body text — never use pure `#000000`)
+- `--color-ink-muted-80`: `#333333`
+- `--color-ink-muted-48`: `#7a7a7a` (Secondary captions & subtle text)
+- `--color-canvas`: `#ffffff` (Main surface background)
+- `--color-canvas-parchment`: `#f5f5f7` (Secondary background / sub-nav)
+- `--color-surface-pearl`: `#fafafc`
+- `--color-hairline`: `#e0e0e0` (Subtle dividers & borders)
+- `--color-surface-tile-1`: `#272729` (Dark product tiles)
+- `--color-surface-black`: `#000000` (Global nav bar)
+
+### Typography & Spacing
+- **Font Stack:** SF Pro Display, SF Pro Text, system-ui, -apple-system, sans-serif (or `@fontsource/inter` as fallback).
+- **Headings Tracking:** Tight tracking on headlines (`tracking-tight` / `-0.28px` to `-0.374px`).
+  - Hero: `56px`, line-height `1.07`, letter-spacing `-0.28px`.
+  - Display: `40px`, line-height `1.1`.
+  - Body: `17px`, line-height `1.47`, letter-spacing `-0.374px`.
+  - Caption: `14px`, line-height `1.43`, letter-spacing `-0.224px`.
+- **Radii & Geometry:**
+  - Action Buttons: `rounded-full` (Pill shape `9999px`), padding `11px 22px`.
+  - Cards & Containers: `rounded-[18px]` (`--radius-lg`).
+  - Search / Form Inputs: `rounded-full`, height `44px`, padding `12px 20px`.
+- **Layout Rhythm:**
+  - Max container width: `max-w-[1200px] mx-auto`.
+  - Major section padding: `py-20` (80px gap).
+  - Apple Styling Rule: Minimalist chrome. No heavy gradients or arbitrary drop shadows. Shadows belong strictly to floating product visuals.
+
+---
+
+## 4. CURSOR CODE-GENERATION INSTRUCTIONS
+- Write complete, production-ready code. Do not output placeholders (`// TODO: implement later`).
+- When writing HTML, apply Tailwind utility classes that correspond directly to the Apple design tokens above (e.g., `bg-[#f5f5f7]`, `text-[#1d1d1f]`, `bg-[#0066cc] hover:bg-[#0071e3] text-white rounded-full`).
+- Ensure all Vanilla JS state interactions leverage `zustand/vanilla`, schemas use `zod`, and animations use `motion`.

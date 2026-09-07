@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>Impostor</title>
+    <script>
+      try {
+        if (localStorage.getItem('impostor.theme') === 'dark') {
+          document.documentElement.classList.add('dark')
+          document.documentElement.dataset.theme = 'dark'
+        }
+      } catch (e) {}
+    </script>
+    <link rel="stylesheet" href="/src/style.css" />
+  </head>
+  <body class="bg-canvas text-ink min-h-dvh">
+    <header class="nav-bar">
+      <span class="font-semibold tracking-tight">Impostor</span>
+      <div class="flex items-center gap-3">
+        <button type="button" class="btn-theme" data-theme-toggle aria-pressed="false">
+          <span data-theme-label>Oscuro</span>
+        </button>
+        <span class="text-white/60 hidden sm:inline">Rosario edition</span>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-[1200px] px-5 py-16 sm:py-20">
+      <section class="mx-auto max-w-md text-center">
+        <p class="caption mb-3 uppercase tracking-[0.08em]">Juego de mesa · celular como carta</p>
+        <h1 class="hero-title mb-4">¿Quién es el impostor?</h1>
+        <p class="body-text text-ink-muted-80 mb-10">
+          Creá una sala, invitá a los pibes y repartí roles en vivo. Hablar, acusar y votar es cara a
+          cara.
+        </p>
+
+        <form id="home-form" class="card-surface text-left space-y-4" method="post" action="#">
+          <label class="block">
+            <span class="caption mb-2 block">Tu apodo</span>
+            <input
+              id="nickname"
+              name="nickname"
+              class="input-pill"
+              maxlength="20"
+              autocomplete="nickname"
+              placeholder="Ej: El Colo"
+              required
+            />
+          </label>
+
+          <div class="grid gap-3">
+            <button type="submit" name="action" value="create" class="btn-primary w-full">
+              Crear sala
+            </button>
+            <div class="flex items-center gap-3">
+              <div class="h-px flex-1 bg-hairline"></div>
+              <span class="caption">o unirte</span>
+              <div class="h-px flex-1 bg-hairline"></div>
+            </div>
+            <label class="block">
+              <span class="caption mb-2 block">Código de sala</span>
+              <input
+                id="room-code"
+                name="code"
+                class="input-pill uppercase tracking-[0.2em] text-center"
+                maxlength="6"
+                placeholder="ABC123"
+                autocomplete="off"
+              />
+            </label>
+            <button type="submit" name="action" value="join" class="btn-secondary w-full">
+              Unirme a la sala
+            </button>
+          </div>
+
+          <div
+            id="home-error"
+            class="hidden rounded-[18px] bg-[#f5f5f7] px-4 py-3 body-text text-[#1d1d1f]"
+            role="alert"
+          ></div>
+          <div id="home-loading" class="hidden space-y-2" aria-live="polite">
+            <div class="skeleton h-11 w-full"></div>
+            <p class="caption text-center">Conectando…</p>
+          </div>
+        </form>
+      </section>
+    </main>
+
+    <script type="module" src="/js/modules/home.js"></script>
+  </body>
+</html>
