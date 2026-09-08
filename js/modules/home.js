@@ -11,7 +11,7 @@ import {
 } from '../services/supabase.js'
 import { hide, show, setText } from './ui.js'
 import { initThemeToggle } from './theme.js'
-import { ROOM_THEMES, themeIconSvg, themeMeta } from './themes.js'
+import { ROOM_THEMES, themeIconSvg } from './themes.js'
 
 initThemeToggle()
 
@@ -20,22 +20,17 @@ const errorEl = document.getElementById('home-error')
 const loadingEl = document.getElementById('home-loading')
 const nicknameInput = document.getElementById('nickname')
 const codeInput = document.getElementById('room-code')
-const themeInput = document.getElementById('room-theme')
-const themePicker = document.getElementById('theme-picker')
-const authBar = document.getElementById('auth-bar')
+const loginBlock = document.getElementById('login-block')
+const createBlock = document.getElementById('create-block')
+const authLoading = document.getElementById('auth-loading')
 const authLabel = document.getElementById('auth-label')
 const googleBtn = document.getElementById('google-btn')
 const logoutBtn = document.getElementById('logout-btn')
 const createBtn = document.getElementById('create-btn')
-const createHint = document.getElementById('create-hint')
+const themesShowcase = document.getElementById('themes-showcase')
 
 const savedNickname = localStorage.getItem('impostor.nickname')
 if (savedNickname && nicknameInput) nicknameInput.value = savedNickname
-
-const savedTheme = localStorage.getItem('impostor.roomTheme')
-if (savedTheme && themeMeta(savedTheme).id === savedTheme && themeInput) {
-  themeInput.value = savedTheme
-}
 
 const params = new URLSearchParams(window.location.search)
 const prefillCode = params.get('code')
@@ -43,22 +38,23 @@ if (prefillCode && codeInput) codeInput.value = prefillCode.toUpperCase()
 
 const pendingCreate = localStorage.getItem('impostor.pendingCreate') === '1'
 
-if (new URLSearchParams(window.location.search).get('kicked') === '1') {
+if (params.get('kicked') === '1') {
   showError('Te sacaron de la sala.')
   window.history.replaceState({}, '', '/')
 }
 
-paintThemePicker()
+paintThemesShowcase()
 bootstrapAuth()
 
 googleBtn?.addEventListener('click', async () => {
   hide(errorEl)
   try {
-    localStorage.setItem('impostor.pendingCreate', nicknameInput?.value?.trim() ? '1' : '0')
     if (nicknameInput?.value?.trim()) {
       localStorage.setItem('impostor.nickname', nicknameInput.value.trim())
+      localStorage.setItem('impostor.pendingCreate', '1')
+    } else {
+      localStorage.setItem('impostor.pendingCreate', '0')
     }
-    if (themeInput?.value) localStorage.setItem('impostor.roomTheme', themeInput.value)
     await signInWithGoogle('/')
   } catch (error) {
     showError(humanizeError(error))
@@ -81,7 +77,7 @@ form?.addEventListener('submit', async (event) => {
   show(loadingEl)
 
   const submitter = event.submitter
-  const action = submitter?.value || 'create'
+  const action = submitter?.value || 'join'
   const nicknameResult = nicknameSchema.safeParse(nicknameInput.value)
 
   if (!nicknameResult.success) {
@@ -94,8 +90,6 @@ form?.addEventListener('submit', async (event) => {
 
   try {
     if (action === 'create') {
-      const theme = themeMeta(themeInput?.value || 'rosario').id
-      localStorage.setItem('impostor.roomTheme', theme)
       try {
         await ensureGoogleSession()
       } catch {
@@ -104,7 +98,7 @@ form?.addEventListener('submit', async (event) => {
         return
       }
 
-      const room = await createRoom(nickname, theme)
+      const room = await createRoom(nickname, 'rosario')
       localStorage.removeItem('impostor.pendingCreate')
       window.location.href = `/s/${room.code}`
       return
@@ -125,27 +119,17 @@ form?.addEventListener('submit', async (event) => {
   }
 })
 
-function paintThemePicker() {
-  if (!themePicker || !themeInput) return
-  const selected = themeInput.value || 'rosario'
-  themePicker.innerHTML = ROOM_THEMES.map((theme) => {
-    const active = theme.id === selected
-    return `<button type="button" class="theme-option ${active ? 'is-selected' : ''}" data-theme="${theme.id}" role="radio" aria-checked="${active}">
+function paintThemesShowcase() {
+  if (!themesShowcase) return
+  themesShowcase.innerHTML = ROOM_THEMES.map(
+    (theme) => `<li class="theme-showcase-item">
       <span class="theme-option-icon">${themeIconSvg(theme.icon)}</span>
-      <span class="theme-option-text">
+      <span>
         <span class="theme-option-label">${theme.label}</span>
-        <span class="theme-option-blurb">${theme.blurb}</span>
+        <span class="theme-option-blurb block">${theme.blurb}</span>
       </span>
-    </button>`
-  }).join('')
-
-  themePicker.querySelectorAll('[data-theme]').forEach((btn) => {
-    btn.addEventListener('click', () => {
-      themeInput.value = btn.getAttribute('data-theme')
-      localStorage.setItem('impostor.roomTheme', themeInput.value)
-      paintThemePicker()
-    })
-  })
+    </li>`,
+  ).join('')
 }
 
 async function bootstrapAuth() {
@@ -162,10 +146,7 @@ async function bootstrapAuth() {
         try {
           const nickname = nicknameSchema.parse(nicknameInput.value)
           localStorage.setItem('impostor.nickname', nickname)
-          const theme = themeMeta(
-            themeInput?.value || localStorage.getItem('impostor.roomTheme') || 'rosario',
-          ).id
-          const room = await createRoom(nickname, theme)
+          const room = await createRoom(nickname, 'rosario')
           window.location.href = `/s/${room.code}`
           return
         } catch (error) {
@@ -175,36 +156,24 @@ async function bootstrapAuth() {
     }
   } catch (error) {
     console.error(error)
+    await renderAuth()
   }
 }
 
 async function renderAuth() {
+  hide(authLoading)
+
   const session = await getSession()
   const google = session && isGoogleUser(session.user)
 
-  if (!authBar) return
-
   if (google) {
-    show(authBar)
-    const email = session.user.email || 'Cuenta Google'
-    setText(authLabel, email)
-    hide(googleBtn)
-    show(logoutBtn)
-    if (createBtn) createBtn.textContent = 'Crear sala'
-    if (createHint) {
-      setText(createHint, 'Vas a crear la sala con tu cuenta de Google.')
-      show(createHint)
-    }
+    hide(loginBlock)
+    show(createBlock)
+    setText(authLabel, session.user.email || 'Cuenta Google')
+    if (createBtn) createBtn.disabled = false
   } else {
-    show(authBar)
-    setText(authLabel, 'Para crear una sala necesitás Google')
-    show(googleBtn)
-    hide(logoutBtn)
-    if (createBtn) createBtn.textContent = 'Entrar con Google y crear'
-    if (createHint) {
-      setText(createHint, 'Unirse a una sala no requiere cuenta.')
-      show(createHint)
-    }
+    show(loginBlock)
+    hide(createBlock)
   }
 }
 
@@ -217,7 +186,7 @@ function showError(message) {
 function humanizeError(error) {
   const message = error?.message || String(error)
   if (message.includes('GOOGLE_AUTH_REQUIRED')) {
-    return 'Para crear una sala tenés que entrar con Google.'
+    return 'Para crear una sala tenés que iniciar sesión.'
   }
   if (message.includes('NOT_GOOGLE')) {
     return 'Solo cuentas de Google pueden crear salas.'
