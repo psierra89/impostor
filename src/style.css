@@ -132,20 +132,30 @@ html.dark {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 6px;
-    height: 28px;
-    padding: 0 10px;
+    width: 36px;
+    height: 36px;
+    padding: 0;
     border-radius: 9999px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.1);
     color: #ffffff;
-    font-size: 12px;
-    letter-spacing: -0.12px;
     cursor: pointer;
+    transition: background-color 150ms ease, border-color 150ms ease;
   }
 
   .btn-theme:hover {
-    background: rgba(255, 255, 255, 0.14);
+    background: rgba(255, 255, 255, 0.18);
+    border-color: rgba(255, 255, 255, 0.35);
+  }
+
+  .btn-theme svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.75;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 
   .input-pill {

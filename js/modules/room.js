@@ -14,7 +14,7 @@ import {
   suggestFromBank,
   touchPresence,
 } from '../services/rooms.js'
-import { ensureGuestSession } from '../services/supabase.js'
+import { ensureGuestSession, getGoogleSession, getSession, setTabMode } from '../services/supabase.js'
 import {
   gameStore,
   loadLocalSession,
@@ -176,7 +176,7 @@ async function bootstrap() {
   hide(els.revealed)
 
   try {
-    await ensureGuestSession()
+    await prepareAuthForRoom()
     const session = await resolveSession()
     if (!session) {
       window.location.href = codeFromQuery ? `/?code=${codeFromQuery}` : '/'
@@ -194,6 +194,25 @@ async function bootstrap() {
     console.error(error)
     gameStore.getState().setError(humanizeError(error))
   }
+}
+
+async function prepareAuthForRoom() {
+  const local = loadLocalSession()
+  if (local?.roomId) {
+    setTabMode('host')
+    const google = await getGoogleSession()
+    if (google) return
+    const session = await getSession()
+    if (session) return
+  }
+
+  if (codeFromQuery) {
+    await ensureGuestSession()
+    return
+  }
+
+  setTabMode('host')
+  await getSession()
 }
 
 async function resolveSession() {
@@ -350,7 +369,7 @@ function renderLobby(state) {
   setText(els.poolCount, poolLabel(state.poolCount))
   setText(els.lobbyExpiry, formatExpiry(state.room?.expires_at))
 
-  const canStart = state.players.length >= 3 && state.players.length <= 12
+  const canStart = state.players.length >= 2 && state.players.length <= 12
   const expired = isExpired(state.room?.expires_at)
 
   if (state.isHost) {
@@ -365,7 +384,7 @@ function renderLobby(state) {
           ? state.poolCount === 0
             ? 'El pozo está vacío: se elegirá del banco al iniciar.'
             : 'Listo para iniciar.'
-          : 'Hacen falta al menos 3 jugadores.',
+          : 'Hacen falta al menos 2 jugadores.',
     )
   } else {
     hide(els.hostControls)
@@ -453,7 +472,7 @@ function renderRevealed(state) {
 function humanizeError(error) {
   const message = error?.message || String(error)
   if (message.includes('NOT_HOST')) return 'Solo el admin puede hacer eso.'
-  if (message.includes('NEED_PLAYERS')) return 'Hacen falta al menos 3 jugadores.'
+  if (message.includes('NEED_PLAYERS')) return 'Hacen falta al menos 2 jugadores.'
   if (message.includes('ROOM_FULL')) return 'La sala está llena.'
   if (message.includes('ROOM_NOT_FOUND')) return 'Sala no encontrada.'
   if (message.includes('ROOM_EXPIRED')) return 'Esta sala expiró. Pedile al admin una nueva.'

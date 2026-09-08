@@ -19,6 +19,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "db:migrate": "node scripts/apply-migrations.mjs"
+    "db:migrate": "node scripts/apply-migrations.mjs",
+    "test:multi": "node scripts/e2e-multiplayer.mjs",
+    "test:ui": "python scripts/test_ui_theme.py"
   }
 }

@@ -22,9 +22,7 @@
         Sala <span id="nav-code">······</span>
       </button>
       <div class="flex items-center gap-2">
-        <button type="button" class="btn-theme" data-theme-toggle aria-pressed="false">
-          <span data-theme-label>Oscuro</span>
-        </button>
+        <button type="button" class="btn-theme" data-theme-toggle aria-pressed="false" title="Modo oscuro"></button>
         <span id="nav-status" class="text-white/60 hidden sm:inline">Lobby</span>
       </div>
     </header>
@@ -49,7 +47,7 @@
           <p class="caption uppercase tracking-[0.08em]">Lobby</p>
           <h1 class="display-title">Esperando jugadores</h1>
           <p id="lobby-subtitle" class="body-text text-ink-muted-80">
-            Mínimo 3 para arrancar. El celular es tu carta secreta.
+            Mínimo 2 para arrancar. El celular es tu carta secreta.
           </p>
           <p id="lobby-expiry" class="caption"></p>
         </header>
@@ -95,7 +93,7 @@
           <button id="start-btn" type="button" class="btn-primary w-full" disabled>
             Iniciar partida
           </button>
-          <p id="start-hint" class="caption text-center">Hacen falta al menos 3 jugadores.</p>
+          <p id="start-hint" class="caption text-center">Hacen falta al menos 2 jugadores.</p>
         </div>
         <p id="guest-wait" class="caption text-center">Esperando que el admin inicie…</p>
       </section>

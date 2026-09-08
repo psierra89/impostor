@@ -1,10 +1,20 @@
 import { createStore } from 'zustand/vanilla'
 
 const SESSION_KEY = 'impostor.session'
+const MODE_KEY = 'impostor.mode'
+
+function storage() {
+  try {
+    if (sessionStorage.getItem(MODE_KEY) === 'guest') return sessionStorage
+  } catch {
+    // ignore
+  }
+  return localStorage
+}
 
 export function loadLocalSession() {
   try {
-    const raw = localStorage.getItem(SESSION_KEY)
+    const raw = storage().getItem(SESSION_KEY)
     return raw ? JSON.parse(raw) : null
   } catch {
     return null
@@ -12,10 +22,15 @@ export function loadLocalSession() {
 }
 
 export function saveLocalSession(session) {
-  localStorage.setItem(SESSION_KEY, JSON.stringify(session))
+  storage().setItem(SESSION_KEY, JSON.stringify(session))
 }
 
 export function clearLocalSession() {
+  try {
+    sessionStorage.removeItem(SESSION_KEY)
+  } catch {
+    // ignore
+  }
   localStorage.removeItem(SESSION_KEY)
 }
 

@@ -12,7 +12,22 @@ Juego web de mesa: el celular es la carta secreta. Salas en vivo con Supabase, U
 ## Auth
 
 - **Crear sala:** requiere **Google** (Supabase Auth).
-- **Unirse:** solo apodo + código (sesión anónima de Supabase).
+- **Unirse:** solo apodo + código (sesión anónima **por pestaña**, en `sessionStorage`).
+
+### Probar varios jugadores en el mismo PC
+
+El error de ID duplicado pasaba porque la misma sesión (misma cuenta) no puede ser dos jugadores. Ahora:
+
+1. **Pestaña 1 (host):** entrá con Google y creá la sala.
+2. **Pestaña 2 / ventana de incógnito (invitado):** abrí la web, poné otro apodo y el código. Cada pestaña de invitado tiene su propia sesión anónima.
+
+O corré el test automático:
+
+```bash
+# service_role solo en tu máquina, nunca en el repo
+$env:SUPABASE_SERVICE_ROLE_KEY="eyJ..."
+npm run test:multi
+```
 
 ### Configurar Google en Supabase
 
@@ -54,6 +69,7 @@ VITE_SUPABASE_ANON_KEY=eyJ...
 - `supabase/migrations/202603260002_realtime.sql`
 - `supabase/migrations/202603270001_auth_limits_expiry.sql`
 - `supabase/migrations/202603270002_cleanup_cron.sql`
+- `supabase/migrations/202603280001_security_min2_players.sql`
 
 3. App:
 
@@ -74,7 +90,7 @@ npm run dev
 1. El admin entra con Google, pone apodo y crea la sala.
 2. Los demás se unen con el código (sin cuenta).
 3. Proponen ideas o piden del banco. Nadie ve el texto del pozo.
-4. Admin inicia: 1 impostor (3–6) o 2 (7–12).
+4. Admin inicia: 1 impostor (2–6) o 2 (7–12). Mínimo **2** jugadores.
 5. Cara a cara. Admin declara ganador y puede arrancar otra ronda.
 
 ## Estructura
