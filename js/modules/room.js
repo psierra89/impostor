@@ -7,8 +7,11 @@ import {
   getMyCard,
   getReveal,
   joinRoom,
+  kickPlayer,
   leaveRoom,
   nextRound,
+  rematchRound,
+  setRoomTheme,
   startRound,
   subscribeRoom,
   suggestFromBank,
@@ -19,6 +22,7 @@ import {
   gameStore,
   loadLocalSession,
   saveLocalSession,
+  clearLocalSession,
 } from '../store/game.js'
 import {
   hide,
@@ -30,6 +34,7 @@ import {
   winnerLabel,
 } from './ui.js'
 import { initThemeToggle } from './theme.js'
+import { ROOM_THEMES, themeIconSvg, themeMeta } from './themes.js'
 
 initThemeToggle()
 
@@ -70,7 +75,14 @@ const els = {
   revealList: document.getElementById('reveal-list'),
   hostNext: document.getElementById('host-next-controls'),
   nextRoundBtn: document.getElementById('next-round-btn'),
+  rematchBtn: document.getElementById('rematch-btn'),
   guestRevealedWait: document.getElementById('guest-revealed-wait'),
+  leaveLobbyBtn: document.getElementById('leave-lobby-btn'),
+  themePanel: document.getElementById('theme-panel'),
+  lobbyThemePicker: document.getElementById('lobby-theme-picker'),
+  lobbyThemeLabel: document.getElementById('lobby-theme-label'),
+  playingThemeLabel: document.getElementById('playing-theme-label'),
+  roleThemeHint: document.getElementById('role-theme-hint'),
 }
 
 let unsubscribe = null
@@ -151,6 +163,44 @@ els.nextRoundBtn?.addEventListener('click', async () => {
     alert(humanizeError(error))
   } finally {
     els.nextRoundBtn.disabled = false
+  }
+})
+
+els.rematchBtn?.addEventListener('click', async () => {
+  els.rematchBtn.disabled = true
+  try {
+    await rematchRound()
+    gameStore.getState().resetRoundUi()
+    await refreshAll()
+  } catch (error) {
+    alert(humanizeError(error))
+  } finally {
+    els.rematchBtn.disabled = false
+  }
+})
+
+els.leaveLobbyBtn?.addEventListener('click', async () => {
+  els.leaveLobbyBtn.disabled = true
+  try {
+    await leaveRoom()
+  } catch {
+    // ignore
+  }
+  window.location.href = '/'
+})
+
+els.playerList?.addEventListener('click', async (event) => {
+  const btn = event.target.closest('[data-kick]')
+  if (!btn) return
+  const targetId = btn.getAttribute('data-kick')
+  if (!targetId) return
+  btn.disabled = true
+  try {
+    await kickPlayer(targetId)
+    await refreshAll()
+  } catch (error) {
+    alert(humanizeError(error))
+    btn.disabled = false
   }
 })
 
@@ -250,6 +300,12 @@ async function refreshAll() {
   const bundle = await fetchRoomBundle(session.roomId)
   const me = bundle.players.find((p) => p.id === session.playerId) ?? null
 
+  if (!me) {
+    clearLocalSession()
+    window.location.href = '/?kicked=1'
+    return
+  }
+
   gameStore.getState().setMe(me)
   gameStore.getState().setRoom(bundle.room)
   gameStore.getState().setPlayers(bundle.players)
@@ -273,11 +329,15 @@ async function refreshPlayers() {
   const session = loadLocalSession()
   if (!session) return
   const bundle = await fetchRoomBundle(session.roomId)
+  const me = bundle.players.find((p) => p.id === session.playerId) ?? null
+  if (!me) {
+    clearLocalSession()
+    window.location.href = '/?kicked=1'
+    return
+  }
   gameStore.getState().setPlayers(bundle.players)
   gameStore.getState().setRoom(bundle.room)
-  gameStore.getState().setMe(
-    bundle.players.find((p) => p.id === session.playerId) ?? null,
-  )
+  gameStore.getState().setMe(me)
 }
 
 async function refreshPool() {
@@ -358,22 +418,28 @@ function renderLobby(state) {
   hide(els.playing)
   hide(els.revealed)
 
+  const theme = themeMeta(state.room?.theme)
+  setText(els.lobbyThemeLabel, `${theme.label} · ${theme.blurb}`)
+
   renderPlayerList(
     els.playerList,
     els.playersEmpty,
     state.players,
     state.room?.host_player_id,
     state.me?.id,
+    { canKick: state.isHost },
   )
   setText(els.playerCount, `${state.players.length} / 12`)
   setText(els.poolCount, poolLabel(state.poolCount))
   setText(els.lobbyExpiry, formatExpiry(state.room?.expires_at))
+  paintLobbyThemePicker(state)
 
   const canStart = state.players.length >= 2 && state.players.length <= 12
   const expired = isExpired(state.room?.expires_at)
 
   if (state.isHost) {
     show(els.hostControls)
+    show(els.themePanel)
     hide(els.guestWait)
     els.startBtn.disabled = !canStart || expired
     setText(
@@ -388,8 +454,39 @@ function renderLobby(state) {
     )
   } else {
     hide(els.hostControls)
+    hide(els.themePanel)
     show(els.guestWait)
   }
+}
+
+function paintLobbyThemePicker(state) {
+  if (!els.lobbyThemePicker || !state.isHost) return
+  const selected = state.room?.theme || 'rosario'
+  els.lobbyThemePicker.innerHTML = ROOM_THEMES.map((theme) => {
+    const active = theme.id === selected
+    return `<button type="button" class="theme-option ${active ? 'is-selected' : ''}" data-set-theme="${theme.id}" role="radio" aria-checked="${active}">
+      <span class="theme-option-icon">${themeIconSvg(theme.icon)}</span>
+      <span class="theme-option-text">
+        <span class="theme-option-label">${theme.label}</span>
+        <span class="theme-option-blurb">${theme.blurb}</span>
+      </span>
+    </button>`
+  }).join('')
+
+  els.lobbyThemePicker.querySelectorAll('[data-set-theme]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      const next = btn.getAttribute('data-set-theme')
+      if (!next || next === selected) return
+      btn.disabled = true
+      try {
+        await setRoomTheme(next)
+        await refreshAll()
+      } catch (error) {
+        alert(humanizeError(error))
+        btn.disabled = false
+      }
+    })
+  })
 }
 
 function isExpired(expiresAt) {
@@ -418,6 +515,9 @@ function renderPlaying(state) {
     return
   }
 
+  const theme = themeMeta(state.room?.theme)
+  setText(els.playingThemeLabel, theme.label)
+
   if (card.is_impostor) {
     els.roleCard.className = 'role-card-impostor'
     setText(els.roleLabel, 'Tu rol')
@@ -434,6 +534,14 @@ function renderPlaying(state) {
       els.roleHint,
       'Sos civil. Descubrí al impostor sin delatar la palabra demasiado.',
     )
+  }
+
+  if (card.hint) {
+    show(els.roleThemeHint)
+    setText(els.roleThemeHint, `Pista: ${card.hint}`)
+  } else {
+    hide(els.roleThemeHint)
+    setText(els.roleThemeHint, '')
   }
 
   if (state.status !== lastRoomStatus) {
@@ -480,6 +588,9 @@ function humanizeError(error) {
   if (message.includes('SUGGEST_LIMIT')) return 'Ya pediste demasiadas sugerencias del banco.'
   if (message.includes('WRONG_STATUS')) return 'La sala no está en el estado esperado.'
   if (message.includes('EMPTY_BANK')) return 'El banco de palabras está vacío.'
+  if (message.includes('CANNOT_KICK_SELF')) return 'No podés sacarte a vos mismo.'
+  if (message.includes('PLAYER_NOT_FOUND')) return 'Ese jugador ya no está en la sala.'
+  if (message.includes('INVALID_THEME')) return 'Temática inválida.'
   return message
 }
 

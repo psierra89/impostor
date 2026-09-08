@@ -25,7 +25,7 @@ function randomCode() {
   return code
 }
 
-export async function createRoom(nickname) {
+export async function createRoom(nickname, theme = 'rosario') {
   await ensureGoogleSession()
   const userId = await getUserId()
 
@@ -34,6 +34,7 @@ export async function createRoom(nickname) {
     const { data, error } = await supabase.rpc('create_room', {
       p_code: code,
       p_nickname: nickname,
+      p_theme: theme,
     })
 
     if (!error) {
@@ -84,6 +85,30 @@ export async function leaveRoom() {
     await supabase.rpc('leave_room', { p_player_id: session.playerId })
   }
   clearLocalSession()
+}
+
+export async function kickPlayer(targetPlayerId) {
+  const session = loadLocalSession()
+  if (!session) throw new Error('Sesión no encontrada')
+
+  const { error } = await supabase.rpc('kick_player', {
+    p_room_id: session.roomId,
+    p_host_player_id: session.playerId,
+    p_target_player_id: targetPlayerId,
+  })
+  if (error) throw error
+}
+
+export async function setRoomTheme(theme) {
+  const session = loadLocalSession()
+  if (!session) throw new Error('Sesión no encontrada')
+
+  const { error } = await supabase.rpc('set_room_theme', {
+    p_room_id: session.roomId,
+    p_player_id: session.playerId,
+    p_theme: theme,
+  })
+  if (error) throw error
 }
 
 export async function fetchRoomBundle(roomId) {
@@ -167,6 +192,11 @@ export async function nextRound() {
     p_player_id: session.playerId,
   })
   if (error) throw error
+}
+
+/** Start another round immediately from revealed (skips lobby). */
+export async function rematchRound() {
+  return startRound()
 }
 
 export async function getMyCard(roundId) {

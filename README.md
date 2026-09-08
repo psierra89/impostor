@@ -70,6 +70,7 @@ VITE_SUPABASE_ANON_KEY=eyJ...
 - `supabase/migrations/202603270001_auth_limits_expiry.sql`
 - `supabase/migrations/202603270002_cleanup_cron.sql`
 - `supabase/migrations/202603280001_security_min2_players.sql`
+- `supabase/migrations/202603280002_themes_kick_rematch.sql`
 
 3. App:
 
@@ -91,7 +92,8 @@ npm run dev
 2. Los demás se unen con el código (sin cuenta).
 3. Proponen ideas o piden del banco. Nadie ve el texto del pozo.
 4. Admin inicia: 1 impostor (2–6) o 2 (7–12). Mínimo **2** jugadores.
-5. Cara a cara. Admin declara ganador y puede arrancar otra ronda.
+5. Temáticas: Rosario, fútbol AR actual/histórico, mundial, marcas (con pista del tipo).
+6. Cara a cara. Admin declara ganador → **Otra ronda ya** (sin lobby) o volver al lobby.
 
 ## Estructura
 

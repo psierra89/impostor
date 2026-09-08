@@ -319,4 +319,222 @@ html.dark {
       opacity: 0.55;
     }
   }
+
+  .brand-lockup {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    color: inherit;
+  }
+
+  .brand-mark {
+    border-radius: 8px;
+    display: block;
+  }
+
+  .landing-body {
+    background:
+      radial-gradient(1200px 480px at 50% -10%, rgba(0, 102, 204, 0.12), transparent 60%),
+      linear-gradient(180deg, var(--color-canvas) 0%, var(--color-canvas-parchment) 100%);
+  }
+
+  html.dark .landing-body {
+    background:
+      radial-gradient(1000px 420px at 50% -8%, rgba(41, 151, 255, 0.16), transparent 55%),
+      linear-gradient(180deg, #000 0%, #1d1d1f 100%);
+  }
+
+  .landing-main {
+    padding-top: 48px;
+    padding-bottom: 64px;
+  }
+
+  .landing-hero {
+    display: grid;
+    gap: 32px;
+    align-items: start;
+    max-width: 920px;
+    margin: 0 auto;
+  }
+
+  @media (min-width: 900px) {
+    .landing-hero {
+      grid-template-columns: 1fr 1fr;
+      gap: 48px;
+      align-items: center;
+    }
+  }
+
+  .landing-hero-copy {
+    text-align: center;
+  }
+
+  @media (min-width: 900px) {
+    .landing-hero-copy {
+      text-align: left;
+    }
+
+    .landing-hero-copy .max-w-md {
+      margin-left: 0;
+    }
+  }
+
+  .landing-logo {
+    width: 96px;
+    height: 96px;
+    border-radius: 22px;
+    margin: 0 auto 16px;
+    display: block;
+    object-fit: cover;
+    animation: logo-in 700ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  @media (min-width: 900px) {
+    .landing-logo {
+      margin-left: 0;
+      width: 112px;
+      height: 112px;
+    }
+  }
+
+  .landing-form {
+    animation: form-in 650ms cubic-bezier(0.22, 1, 0.36, 1) 80ms both;
+  }
+
+  .theme-grid {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: 1fr;
+  }
+
+  @media (min-width: 480px) {
+    .theme-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+
+  .theme-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    text-align: left;
+    border-radius: 14px;
+    border: 1px solid var(--color-hairline);
+    background: var(--color-surface-pearl);
+    padding: 12px;
+    cursor: pointer;
+    color: var(--color-ink);
+    transition: border-color 150ms ease, background-color 150ms ease;
+  }
+
+  .theme-option:hover {
+    border-color: color-mix(in srgb, var(--color-primary) 45%, var(--color-hairline));
+  }
+
+  .theme-option.is-selected {
+    border-color: var(--color-primary);
+    background: color-mix(in srgb, var(--color-primary) 8%, var(--color-canvas));
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 18%, transparent);
+  }
+
+  .theme-option-icon {
+    width: 28px;
+    height: 28px;
+    flex-shrink: 0;
+    color: var(--color-primary);
+    display: inline-flex;
+  }
+
+  .theme-option-icon svg {
+    width: 28px;
+    height: 28px;
+  }
+
+  .theme-option-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+
+  .theme-option-label {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.2px;
+  }
+
+  .theme-option-blurb {
+    font-size: 12px;
+    line-height: 1.35;
+    color: var(--color-ink-muted-48);
+  }
+
+  .theme-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    border-radius: 9999px;
+    background: var(--color-canvas);
+    border: 1px solid var(--color-hairline);
+    padding: 6px 12px;
+    font-size: 13px;
+    color: var(--color-ink-muted-80);
+    width: fit-content;
+  }
+
+  html.dark .theme-chip {
+    background: var(--color-canvas-parchment);
+  }
+
+  .theme-hint {
+    margin-top: 16px;
+    border-radius: 9999px;
+    background: rgba(0, 102, 204, 0.12);
+    color: var(--color-primary);
+    padding: 8px 14px;
+    font-size: 14px;
+    font-weight: 600;
+  }
+
+  .role-card-impostor .theme-hint {
+    background: rgba(41, 151, 255, 0.2);
+    color: #2997ff;
+  }
+
+  .btn-kick {
+    border: none;
+    background: transparent;
+    color: #c41e3a;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+  }
+
+  .btn-kick:hover {
+    background: rgba(196, 30, 58, 0.08);
+  }
+
+  @keyframes logo-in {
+    from {
+      opacity: 0;
+      transform: translateY(12px) scale(0.96);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes form-in {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
 }

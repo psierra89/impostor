@@ -13,7 +13,14 @@ export function setText(el, text) {
   el.textContent = text
 }
 
-export function renderPlayerList(listEl, emptyEl, players, hostPlayerId, myPlayerId) {
+export function renderPlayerList(
+  listEl,
+  emptyEl,
+  players,
+  hostPlayerId,
+  myPlayerId,
+  { canKick = false } = {},
+) {
   if (!listEl) return
 
   if (!players.length) {
@@ -32,9 +39,14 @@ export function renderPlayerList(listEl, emptyEl, players, hostPlayerId, myPlaye
         .map((b) => `<span class="player-badge">${b}</span>`)
         .join('')
 
+      const kickBtn =
+        canKick && player.id !== hostPlayerId && player.id !== myPlayerId
+          ? `<button type="button" class="btn-kick" data-kick="${player.id}" aria-label="Sacar a ${escapeHtml(player.nickname)}">Sacar</button>`
+          : ''
+
       return `<li class="player-row">
         <span class="body-text font-semibold">${escapeHtml(player.nickname)}</span>
-        <span class="flex gap-2">${badgeHtml}</span>
+        <span class="flex items-center gap-2">${badgeHtml}${kickBtn}</span>
       </li>`
     })
     .join('')

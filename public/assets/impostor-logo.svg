@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Impostor">
+  <defs>
+    <linearGradient id="g" x1="20" y1="8" x2="108" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1d1d1f"/>
+      <stop offset="1" stop-color="#272729"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#g)"/>
+  <path d="M64 26c-18 0-34 12-38 28 8-6 18-8 28-4 4 2 8 2 12 0 10-4 20-2 28 4-4-16-20-28-30-28z" fill="#0066cc"/>
+  <path d="M36 62c4 22 14 34 28 34s24-12 28-34c-8 8-18 10-28 6-4-2-8-2-12 0-10 4-20 2-16-6z" fill="#2997ff" opacity=".9"/>
+  <ellipse cx="52" cy="58" rx="6" ry="5" fill="#f5f5f7"/>
+  <ellipse cx="76" cy="58" rx="6" ry="5" fill="#f5f5f7"/>
+  <ellipse cx="53.5" cy="58.5" rx="2.5" ry="2.2" fill="#1d1d1f"/>
+  <ellipse cx="77.5" cy="58.5" rx="2.5" ry="2.2" fill="#1d1d1f"/>
+  <path d="M48 78c6 6 12 8 16 8s10-2 16-8" fill="none" stroke="#f5f5f7" stroke-width="3" stroke-linecap="round"/>
+</svg>

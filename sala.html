@@ -4,6 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#ffffff" />
+    <link rel="icon" href="/assets/impostor-logo.svg" type="image/svg+xml" />
     <title>Sala · Impostor</title>
     <script>
       try {
@@ -17,7 +18,10 @@
   </head>
   <body class="bg-canvas-parchment text-ink min-h-dvh">
     <header class="nav-bar">
-      <a href="/" class="text-primary-on-dark no-underline">Salir</a>
+      <a href="/" class="brand-lockup no-underline text-primary-on-dark">
+        <img src="/assets/impostor-logo.svg" width="28" height="28" alt="" class="brand-mark" />
+        <span>Salir</span>
+      </a>
       <button id="copy-code" type="button" class="btn-dark !bg-white/10 !text-white">
         Sala <span id="nav-code">······</span>
       </button>
@@ -49,8 +53,15 @@
           <p id="lobby-subtitle" class="body-text text-ink-muted-80">
             Mínimo 2 para arrancar. El celular es tu carta secreta.
           </p>
+          <p id="lobby-theme-label" class="theme-chip mx-auto"></p>
           <p id="lobby-expiry" class="caption"></p>
         </header>
+
+        <article id="theme-panel" class="card-surface space-y-3 hidden">
+          <h2 class="text-[21px] font-semibold tracking-tight">Temática</h2>
+          <p class="caption">Solo el admin puede cambiarla antes de iniciar.</p>
+          <div id="lobby-theme-picker" class="theme-grid" role="radiogroup" aria-label="Temática"></div>
+        </article>
 
         <article class="card-surface">
           <div class="flex items-center justify-between mb-4">
@@ -59,6 +70,11 @@
           </div>
           <ul id="player-list" class="space-y-2"></ul>
           <p id="players-empty" class="caption hidden">Todavía no hay nadie acá.</p>
+          <div class="mt-4 pt-3 border-t border-hairline">
+            <button id="leave-lobby-btn" type="button" class="btn-secondary w-full !text-[15px]">
+              Salir del lobby
+            </button>
+          </div>
         </article>
 
         <article class="card-surface space-y-4">
@@ -102,16 +118,15 @@
         <header class="text-center space-y-2">
           <p class="caption uppercase tracking-[0.08em]">Ronda en curso</p>
           <h1 class="display-title">Tu carta</h1>
+          <p id="playing-theme-label" class="theme-chip mx-auto"></p>
           <p class="body-text text-ink-muted-80">No se la muestres a nadie. Jugá cara a cara.</p>
         </header>
 
-        <article
-          id="role-card"
-          class="role-card-civilian"
-        >
+        <article id="role-card" class="role-card-civilian">
           <p id="role-label" class="caption mb-3 uppercase tracking-[0.12em]">Rol</p>
           <p id="role-main" class="display-title mb-3">…</p>
           <p id="role-hint" class="body-text max-w-sm"></p>
+          <p id="role-theme-hint" class="theme-hint hidden"></p>
         </article>
 
         <div id="host-end-controls" class="hidden space-y-3 card-surface">
@@ -147,10 +162,16 @@
           <ul id="reveal-list" class="space-y-2"></ul>
         </article>
 
-        <div id="host-next-controls" class="hidden">
-          <button id="next-round-btn" type="button" class="btn-primary w-full">
-            Nueva ronda
+        <div id="host-next-controls" class="hidden space-y-3">
+          <button id="rematch-btn" type="button" class="btn-primary w-full">
+            Otra ronda ya
           </button>
+          <button id="next-round-btn" type="button" class="btn-secondary w-full">
+            Volver al lobby
+          </button>
+          <p class="caption text-center">
+            “Otra ronda ya” reparte cartas al toque, sin pasar por el listado.
+          </p>
         </div>
         <p id="guest-revealed-wait" class="caption text-center">
           Esperando que el admin arranque otra ronda…

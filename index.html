@@ -4,6 +4,9 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#ffffff" />
+    <meta name="description" content="Impostor: el celular es la carta secreta. Salas en vivo para jugar cara a cara." />
+    <link rel="icon" href="/assets/impostor-logo.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/assets/impostor-mark.png" />
     <title>Impostor</title>
     <script>
       try {
@@ -15,25 +18,37 @@
     </script>
     <link rel="stylesheet" href="/src/style.css" />
   </head>
-  <body class="bg-canvas text-ink min-h-dvh">
+  <body class="landing-body text-ink min-h-dvh">
     <header class="nav-bar">
-      <span class="font-semibold tracking-tight">Impostor</span>
+      <a href="/" class="brand-lockup no-underline text-white">
+        <img src="/assets/impostor-logo.svg" width="36" height="36" alt="" class="brand-mark" />
+        <span class="font-semibold tracking-tight">Impostor</span>
+      </a>
       <div class="flex items-center gap-3">
         <button type="button" class="btn-theme" data-theme-toggle aria-pressed="false" title="Modo oscuro"></button>
-        <span class="text-white/60 hidden sm:inline">Rosario edition</span>
       </div>
     </header>
 
-    <main class="mx-auto max-w-[1200px] px-5 py-16 sm:py-20">
-      <section class="mx-auto max-w-md text-center">
-        <p class="caption mb-3 uppercase tracking-[0.08em]">Juego de mesa · celular como carta</p>
-        <h1 class="hero-title mb-4">¿Quién es el impostor?</h1>
-        <p class="body-text text-ink-muted-80 mb-10">
-          Creá una sala, invitá a los pibes y repartí roles en vivo. Hablar, acusar y votar es cara a
-          cara.
-        </p>
+    <main class="landing-main mx-auto max-w-[1200px] px-5">
+      <section class="landing-hero">
+        <div class="landing-hero-copy">
+          <img
+            src="/assets/impostor-mark.png"
+            width="112"
+            height="112"
+            alt="Logo Impostor"
+            class="landing-logo"
+            decoding="async"
+          />
+          <p class="caption mb-3 uppercase tracking-[0.08em]">Celular = carta secreta</p>
+          <h1 class="hero-title mb-4">Impostor</h1>
+          <p class="body-text text-ink-muted-80 max-w-md mx-auto">
+            Creá una sala, elegí la temática e invitá a los pibes. Hablar, acusar y votar es cara a
+            cara.
+          </p>
+        </div>
 
-        <form id="home-form" class="card-surface text-left space-y-4" method="post" action="#">
+        <form id="home-form" class="card-surface landing-form text-left space-y-4" method="post" action="#">
           <div id="auth-bar" class="rounded-[18px] bg-canvas-parchment px-4 py-3 space-y-3">
             <p id="auth-label" class="caption !text-ink-muted-80">Cargando sesión…</p>
             <div class="flex flex-wrap gap-2">
@@ -58,6 +73,12 @@
               required
             />
           </label>
+
+          <fieldset class="space-y-2">
+            <legend class="caption mb-1">Temática de la sala</legend>
+            <div id="theme-picker" class="theme-grid" role="radiogroup" aria-label="Temática"></div>
+            <input type="hidden" id="room-theme" name="theme" value="rosario" />
+          </fieldset>
 
           <div class="grid gap-3">
             <button
